@@ -1,0 +1,216 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Music Player</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#121212;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.player{
+background:#308997;
+padding:30px;
+border-radius:10px;
+width:350px;
+text-align:center;
+}
+
+button{
+font-size:20px;
+margin:10px;
+padding:10px;
+cursor:pointer;
+}
+
+#progress{
+width:100%;
+}
+
+.volume{
+margin-top:10px;
+}
+
+ul{
+list-style:none;
+padding:0;
+}
+
+li{
+padding:5px;
+cursor:pointer;
+}
+
+li:hover{
+background:#127983;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="player">
+
+<h2>Music Player</h2>
+
+<h3 id="title">Song Title</h3>
+<p id="artist">Artist</p>
+
+<audio id="audio"></audio>
+
+<input type="range" id="progress" value="0">
+
+<div>
+<button onclick="prevSong()">⏮</button>
+<button onclick="playPause()" id="playBtn">▶</button>
+<button onclick="nextSong()">⏭</button>
+</div>
+
+<div>
+<span id="currentTime">0:00</span>
+<span id="duration">0:00</span>
+</div>
+
+<div class="volume">
+Volume
+<input type="range" id="volume" min="0" max="1" step="0.1">
+</div>
+
+<h3>Playlist</h3>
+<ul id="playlist"></ul>
+
+</div>
+
+<script>
+
+const audio = document.getElementById("audio");
+const title = document.getElementById("title");
+const artist = document.getElementById("artist");
+const progress = document.getElementById("progress");
+const playBtn = document.getElementById("playBtn");
+const currentTimeEl = document.getElementById("currentTime");
+const durationEl = document.getElementById("duration");
+const volume = document.getElementById("volume");
+const playlistEl = document.getElementById("playlist");
+
+let songs = [
+{
+title: "Song One",
+artist: "Artist A",
+src: "song1.mp3"
+},
+{
+title: "Song Two",
+artist: "Artist B",
+src: "song2.mp3"
+},
+{
+title: "Song Three",
+artist: "Artist C",
+src: "song3.mp3"
+}
+];
+
+let songIndex = 0;
+
+function loadSong(song){
+title.textContent = song.title;
+artist.textContent = song.artist;
+audio.src = song.src;
+}
+
+loadSong(songs[songIndex]);
+
+function playPause(){
+if(audio.paused){
+audio.play();
+playBtn.textContent="⏸";
+}else{
+audio.pause();
+playBtn.textContent="▶";
+}
+}
+
+function nextSong(){
+songIndex++;
+if(songIndex > songs.length-1){
+songIndex = 0;
+}
+loadSong(songs[songIndex]);
+audio.play();
+}
+
+function prevSong(){
+songIndex--;
+if(songIndex < 0){
+songIndex = songs.length-1;
+}
+loadSong(songs[songIndex]);
+audio.play();
+}
+
+audio.addEventListener("timeupdate",()=>{
+
+let progressPercent=(audio.currentTime/audio.duration)*100;
+progress.value=progressPercent;
+
+let minutes=Math.floor(audio.currentTime/60);
+let seconds=Math.floor(audio.currentTime%60);
+
+if(seconds<10){seconds="0"+seconds}
+
+currentTimeEl.textContent=minutes+":"+seconds;
+
+});
+
+audio.addEventListener("loadedmetadata",()=>{
+
+let minutes=Math.floor(audio.duration/60);
+let seconds=Math.floor(audio.duration%60);
+
+durationEl.textContent=minutes+":"+seconds;
+
+});
+
+progress.addEventListener("input",()=>{
+audio.currentTime=(progress.value/100)*audio.duration;
+});
+
+volume.addEventListener("input",()=>{
+audio.volume=volume.value;
+});
+
+audio.addEventListener("ended",nextSong);
+
+function loadPlaylist(){
+songs.forEach((song,index)=>{
+let li=document.createElement("li");
+li.textContent=song.title+" - "+song.artist;
+
+li.onclick=()=>{
+songIndex=index;
+loadSong(song);
+audio.play();
+};
+
+playlistEl.appendChild(li);
+});
+}
+
+loadPlaylist();
+
+</script>
+
+</body>
+</html>
+```
